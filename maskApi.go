@@ -163,19 +163,19 @@ func RLEFromPoly(poly *float64, k, h, w uint32) *RLE {
 
 //Char contains a pointer to a c char string
 type Char struct {
-	c unsafe.Pointer
+	Cc unsafe.Pointer
 }
 
 //ToChar Get compressed string representation of encoded mask.
 //char* rleToString( const RLE *R );
 func (r *RLE) ToChar() *Char {
 	x := new(Char)
-	x.c = unsafe.Pointer(C.rleToString(r.r))
+	x.Cc = unsafe.Pointer(C.rleToString(r.r))
 	runtime.SetFinalizer(x, freechar)
 	return x
 }
 func freechar(c *Char) {
-	C.free(c.c)
+	C.free(c.Cc)
 	c = nil
 }
 
@@ -183,6 +183,6 @@ func freechar(c *Char) {
 //void rleFrString( RLE *R, char *s, siz h, siz w );
 func (c *Char) ToRLE(h, w uint32) *RLE {
 	r := InitRLEs(1)
-	C.rleFrString(r.r, (*C.char)(c.c), (C.siz)(h), (C.siz)(w))
+	C.rleFrString(r.r, (*C.char)(c.Cc), (C.siz)(h), (C.siz)(w))
 	return r
 }
