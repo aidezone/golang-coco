@@ -51,10 +51,20 @@ func EncodeRLE(mask []byte, h, w, n uint32) *RLE {
 	return r
 }
 
+//CompressRLE cnts using RLE.
+//void rleInit( RLE *R, siz h, siz w, siz m, uint *cnts );
+func CompressRLE(cnts []uint32, h, w uint32) *RLE {
+	r := InitRLEs(1)
+	r.h = C.siz(h)
+	r.w = C.siz(w)
+    C.rleInit(r.r, (C.siz)(h), (C.siz)(w), (C.siz)(len(cnts)), (*C.uint)(&cnts[0]));
+	return r
+}
+
+
 // Decode binary masks encoded via RLE
 //void rleDecode( const RLE *R, byte *mask, siz n );
 func (r *RLE) Decode() (mask []byte) {
-
 	mask = make([]byte, r.h*r.w*r.size)
 	C.rleDecode(r.r, (*C.byte)(&mask[0]), r.size)
 	return mask
@@ -183,6 +193,8 @@ func freechar(c *Char) {
 //void rleFrString( RLE *R, char *s, siz h, siz w );
 func (c *Char) ToRLE(h, w uint32) *RLE {
 	r := InitRLEs(1)
+	r.h = (C.siz)(h)
+	r.w = (C.siz)(w)
 	C.rleFrString(r.r, (*C.char)(c.Cc), (C.siz)(h), (C.siz)(w))
 	return r
 }
